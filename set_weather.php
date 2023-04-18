@@ -1,77 +1,51 @@
 <?php
 
-	echo "START OF SCRIPT - ".date('r')."\n";
-	echo "-----------------------------------------------------------------------------------------------------\n\n";
+	require_once __DIR__ . "/weather.class.php";
+	require_once "/home/benjamin/Documents/github/owencraft-stats/logging.class.php";
 
-	require("/root/.mc_server.php");
-	if(file_exists("/usr/local/bin/mcrcon")) {
-		$mcrconLocation = "/usr/local/bin/mcrcon";
-	} else {
-		echo "Could not find mcrcon file!\n";exit;
-	}
+	$file = __DIR__ . "/.creds";
+	$weather = new owencraft_weather($file);
 
-	$previousWeather = "/root/.mc_weather";
+	$weather->logger->startScript();
 
-	$apiKey = "220ede2aed4da7138aa64f545f8316bd";
-	$exclusions = "hourly,minutely,daily";
 	$lat = "36.0178911";
 	$long = "-78.8083965";
-	$url = "https://api.openweathermap.org/data/2.5/onecall?lat=$lat&lon=$long&exclude=$exclusions&appid=$apiKey";
+	$msg = "Setting Latitude to {$lat} and setting Longitude to {$long}...";
+	$weather->logger->logMsg($msg, 0);
+	$weather->setLocation($lat, $long);
 
-	$jsonData = file_get_contents($url);
-	$data = json_decode($jsonData, true);
+	$exclusions = array("hourly", "minutely", "daily");
+	foreach ($exclusions as $exclusion) {
+		$msg = "Setting exclusion: {$exclusion}...";
+		$weather->logger->logMsg($msg, 0);
+	}
+	$weather->setExclusions($exclusions);
 
-	foreach($data as $key=>$value) {
-		if($key == "current") {
-			foreach($value as $k=>$v) {
-				if($k == "weather") {
-					foreach($v[0] as $item=>$element) {
-						if($item == "main") {
-							$weather = $element;
-							if($weather == "Clear" || $weather == "Clouds") {
-								echo "Setting Owencraft to clear for the next hour\n";
-								$currentWeather = file_get_contents($previousWeather);
-								if($currentWeather == $weather) {
-									$setWeather = file_put_contents("$previousWeather", $weather);
-								} else {
-									$cmd = "$mcrconLocation -H $mc_server -p $mc_password \"weather clear 3600\"";
-									$exec = exec($cmd,$output,$return);
-									$setWeather = file_put_contents("$previousWeather", $weather);
-								}
-							} elseif($weather == "Rain" || $weather == "Drizzle" || $weather == "Snow") {
-								echo "Setting Owencraft to rain for the next hour\n";
-								$currentWeather = file_get_contents($previousWeather);
-								if($currentWeather == $weather) {
-									$setWeather = file_put_contents("$previousWeather", $weather);
-								} else {
-									$cmd = "$mcrconLocation -H $mc_server -p $mc_password \"weather rain 3600\"";
-									$exec = exec($cmd,$output,$return);
-									$setWeather = file_put_contents("$previousWeather", $weather);
-								}
-							} elseif($weather == "Thunderstorm") {
-								echo "Setting Owencraft to rain for the next hour\n";
-								$currentWeather = file_get_contents($previousWeather);
-								if($currentWeather == $weather) {
-									$setWeather = file_put_contents("$previousWeather", $weather);
-								} else {
-									$cmd = "$mcrconLocation -H $mc_server -p $mc_password \"weather rain 3600\"";
-									$exec = exec($cmd,$output,$return);
-									$setWeather = file_put_contents("$previousWeather", $weather);
-								}
-							} else {
-								echo "Unable to determine weather, setting to clear for the next hour\n";
-								$cmd = "$mcrconLocation -H $mc_server -p $mc_password \"weather clear 3600\"";
-								$exec = exec($cmd,$output,$return);
-								$setWeather = file_put_contents("$previousWeather", "Clear");
-							}
-						}
-					}
-				}
-			}
-		}
+	$msg = "Calling API...";
+	$weather->logger->logMsg($msg, 0);
+	$raw_data = $weather->callApi();
+	if($raw_data) {
+		$msg = "Successfully received weather data from API! Parsing results for the current weather...";
+		$weather->logger->logMsg($msg, 0);
+		$current_weather = $weather->getWeather($raw_data);
+	} else {
+		$msg = "Unable to get weather data from API! Cannot continue!";
+		$weather->logger->logMsg($msg, 2);
+		exit(1);
 	}
 
-	echo "\n-----------------------------------------------------------------------------------------------------\n";
-	echo "END OF SCRIPT - ".date('r')."\n";
+	if($current_weather) {
+		$msg = "The current weather is: {$current_weather}!";
+		$weather->logger->logMsg($msg, 0);
+	} else {
+		$msg = "Unable to retrieve the current weather!";
+		$weather->logger->logMsg($msg, 2);
+	}
+
+	$msg = "Calling mcrcon to set the weather on the server...";
+	$weather->logger->logMsg($msg, 0);
+	$weather->setWeather($current_weather);
+
+	$weather->logger->stopScript();
 
 ?>
