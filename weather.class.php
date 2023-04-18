@@ -23,7 +23,7 @@
             $this->logger = new oclogger($this->log_path, $this->log_file);
             $this->mcrcon = new mcrcon();
             if(file_exists($file)) {
-                $this->apikey = file_get_contents($file);
+                $this->apikey = rtrim(file_get_contents($file));
             } else {
                 $this->logger->logMsg("Unable to locate API Key!", 2);
                 exit;
