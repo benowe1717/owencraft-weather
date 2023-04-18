@@ -1,7 +1,7 @@
 <?php
 
 	require_once __DIR__ . "/weather.class.php";
-	require_once "/home/benjamin/Documents/github/owencraft-stats/logging.class.php";
+	require_once __DIR__ . "/logging.class.php";
 
 	$file = __DIR__ . "/.creds";
 	$weather = new owencraft_weather($file);
