@@ -12,8 +12,10 @@ def main():
     action = myparser.action
 
     credentials_file = './src/configs/.creds'
+    lat = 36.0178911
+    long = -78.8083965
     try:
-        weather = OpenWeatherMap(credentials_file)
+        weather = OpenWeatherMap(credentials_file, lat, long)
 
     except ValueError:
         errors = traceback.format_exc().splitlines()
@@ -25,7 +27,15 @@ def main():
         # TODO:
         # Call the weather class test method
         # it makes a basic call and returns a basic check of data
-        pass
+        result = weather.test()
+        if not result:
+            exit(1)
+        exit(0)
+
+    result = weather.onecall()
+    if not result:
+        exit(1)
+    print(weather.weather)
 
 
 if __name__ == '__main__':
