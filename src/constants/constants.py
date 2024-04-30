@@ -20,3 +20,6 @@ MCRCON_HOSTNAME_REGEX = r"^(localhost|[\w\-\_\.]+\.[\w\.]{2,})"
 MCRCON_MIN_PORT = 1
 MCRCON_MAX_PORT = 65535
 MCRCON_WEATHER_TIME = 3600
+
+# main
+RAIN_CONDITIONS = ['Rain', 'Drizzle', 'Snow', 'Thunderstorm']

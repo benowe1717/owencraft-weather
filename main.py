@@ -5,6 +5,14 @@ import traceback
 from src.classes.mcrcon import McRcon
 from src.classes.parseargs import ParseArgs
 from src.classes.weather import OpenWeatherMap
+from src.constants import constants
+
+
+def get_weather(weather: dict) -> str:
+    condition = weather['current']['weather'][0]['main']
+    if condition in constants.RAIN_CONDITIONS:
+        return 'rain'
+    return 'clear'
 
 
 def main():
@@ -39,7 +47,11 @@ def main():
     result = weather.onecall()
     if not result:
         exit(1)
-    print(weather.weather)
+    condition = get_weather(weather.weather)
+
+    result = mcrcon.set_weather(condition)
+    if not result:
+        exit(1)
 
 
 if __name__ == '__main__':

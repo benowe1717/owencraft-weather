@@ -111,14 +111,14 @@ class McRcon():
             '-H',
             self.hostname,
             '-P',
-            self.port,
+            str(self.port),
             '-p',
             self._password,
-            f'weather {value} {self.WEATHER_TIME}']
+            f'weather {value} {str(self.WEATHER_TIME)}']
         result = subprocess.run(
             cmd,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+            stderr=subprocess.PIPE, text=True)
         if result.returncode != 0:
             print(result.stderr)
             return False
