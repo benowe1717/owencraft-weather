@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import logging
 import os.path
 from unittest.mock import MagicMock, patch
 
@@ -227,37 +228,37 @@ class TestMcRcon():
         self.tearDown()
 
     @patch('src.classes.mcrcon.subprocess.run')
-    def test_set_weather_failed_connection_refused(self, mock_run, capsys):
+    def test_set_weather_failed_connection_refused(self, mock_run, caplog):
         self.setUp()
-        msg = "Connection failed.\nError 111: Connection refused"
+        msg = "Connection failed. Error 111: Connection refused"
         mock_stdout = MagicMock()
         mock_stdout.configure_mock(
             **{'return_value': msg, 'returncode': 1, 'stderr': msg})
         mock_run.return_value = mock_stdout
         result = self.mcrcon.set_weather('clear')
-        captured = capsys.readouterr()
+        caplog.set_level(logging.INFO)
         assert result is False
         assert mock_stdout.stderr == msg
-        assert captured.out == f"{msg}\n"
+        assert msg in caplog.text
         self.tearDown()
 
     @patch('src.classes.mcrcon.subprocess.run')
-    def test_set_weather_failed_no_route_to_host(self, mock_run, capsys):
+    def test_set_weather_failed_no_route_to_host(self, mock_run, caplog):
         self.setUp()
-        msg = "Connection failed.\nError 113: No route to host"
+        msg = "Connection failed. Error 113: No route to host"
         mock_stdout = MagicMock()
         mock_stdout.configure_mock(
             **{'return_value': msg, 'returncode': 1, 'stderr': msg})
         mock_run.return_value = mock_stdout
         result = self.mcrcon.set_weather('clear')
-        captured = capsys.readouterr()
+        caplog.set_level(logging.INFO)
         assert result is False
         assert mock_stdout.stderr == msg
-        assert captured.out == f"{msg}\n"
+        assert msg in caplog.text
         self.tearDown()
 
     @patch('src.classes.mcrcon.subprocess.run')
-    def test_set_weather_failed_bad_password(self, mock_run, capsys):
+    def test_set_weather_failed_bad_password(self, mock_run, caplog):
         self.setUp()
         msg = 'Authentication failed!'
         mock_stdout = MagicMock()
@@ -265,10 +266,10 @@ class TestMcRcon():
             **{'return_value': msg, 'returncode': 1, 'stderr': msg})
         mock_run.return_value = mock_stdout
         result = self.mcrcon.set_weather('clear')
-        captured = capsys.readouterr()
+        caplog.set_level(logging.INFO)
         assert result is False
         assert mock_stdout.stderr == msg
-        assert captured.out == f"{msg}\n"
+        assert msg in caplog.text
         self.tearDown()
 
     @patch('src.classes.mcrcon.subprocess.run')

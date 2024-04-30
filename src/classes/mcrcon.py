@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import logging
 import os.path
 import re
 import subprocess
@@ -18,6 +19,7 @@ class McRcon():
             hostname: str,
             credentials_file: str,
             port=25575) -> None:
+        self._logger = logging.getLogger(constants.PROGRAM_NAME)
         self.mcrcon = mcrcon_filepath
         self.hostname = hostname
         self.port = port
@@ -33,11 +35,17 @@ class McRcon():
     def mcrcon(self, value: str) -> None:
         filepath = os.path.abspath(value)
         if not self._file_exists(filepath):
-            raise ValueError(f'Unable to find {filepath}')
+            msg = f'Unable to find {filepath}!'
+            self._logger.error(msg)
+            raise ValueError(msg)
         if not self._is_file(filepath):
-            raise ValueError(f'{filepath} is not a file')
+            msg = f'{filepath} is not a file!'
+            self._logger.error(msg)
+            raise ValueError(msg)
         if not self._is_executable(filepath):
-            raise ValueError(f'{filepath} is not an executable')
+            msg = f'{filepath} is not an executable file!'
+            self._logger.error(msg)
+            raise ValueError(msg)
         self._mcrcon = filepath
 
     @property
@@ -48,11 +56,17 @@ class McRcon():
     def credentials_file(self, value: str) -> None:
         filepath = os.path.abspath(value)
         if not self._file_exists(filepath):
-            raise ValueError(f'Unable to find {filepath}')
+            msg = f'Unable to find {filepath}!'
+            self._logger.error(msg)
+            raise ValueError(msg)
         if not self._is_file(filepath):
-            raise ValueError(f'{filepath} is not a file')
+            msg = f'{filepath} is not a file!'
+            self._logger.error(msg)
+            raise ValueError(msg)
         if not self._is_readable(filepath):
-            raise ValueError(f'{filepath} is not readable')
+            msg = f'{filepath} is not readable!'
+            self._logger.error(msg)
+            raise ValueError(msg)
         self._credentials_file = filepath
 
     @property
@@ -62,7 +76,9 @@ class McRcon():
     @hostname.setter
     def hostname(self, value: str) -> None:
         if not self._is_valid_hostname(value):
-            raise ValueError(f'{value} is not a valid hostname')
+            msg = f'{value} is not a valid hostname!'
+            self._logger.error(msg)
+            raise ValueError(msg)
         self._hostname = value
 
     @property
@@ -72,7 +88,9 @@ class McRcon():
     @port.setter
     def port(self, value: int) -> None:
         if not self._is_valid_port(value):
-            raise ValueError(f'{value} is not a valid port')
+            msg = f'{value} is not a valid port!'
+            self._logger.error(msg)
+            raise ValueError(msg)
         self._port = value
 
     def _file_exists(self, value: str) -> bool:
@@ -120,6 +138,7 @@ class McRcon():
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE, text=True)
         if result.returncode != 0:
-            print(result.stderr)
+            msg = result.stderr.replace('\n', ' ').strip()
+            self._logger.error(msg)
             return False
         return True

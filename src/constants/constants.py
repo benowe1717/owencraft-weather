@@ -23,3 +23,5 @@ MCRCON_WEATHER_TIME = 3600
 
 # main
 RAIN_CONDITIONS = ['Rain', 'Drizzle', 'Snow', 'Thunderstorm']
+TIME_FORMAT = '%b %d %H:%M:%S'
+PROGRAM_NAME = 'OwencraftWeather'

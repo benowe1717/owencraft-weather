@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import logging
 import os.path
 
 import requests
@@ -12,6 +13,7 @@ class OpenWeatherMap():
     BASE_URL = constants.API_BASE_URL
 
     def __init__(self, credentials_file, lat: float, long: float) -> None:
+        self._logger = logging.getLogger(constants.PROGRAM_NAME)
         self.credentials_file = credentials_file
         with open(self.credentials_file, 'r') as file:
             self._appid = file.readlines()[0].strip()
@@ -31,11 +33,17 @@ class OpenWeatherMap():
     def credentials_file(self, value: str) -> None:
         filepath = os.path.abspath(value)
         if not self._file_exists(filepath):
-            raise ValueError(f'Unable to find {filepath}')
+            msg = f'Unable to find {filepath}!'
+            self._logger.error(msg)
+            raise ValueError(msg)
         if not self._is_file(filepath):
-            raise ValueError(f'{filepath} is not a file')
+            msg = f'{filepath} is not a file!'
+            self._logger.error(msg)
+            raise ValueError(msg)
         if not self._is_readable(filepath):
-            raise ValueError(f'{filepath} is not readable')
+            msg = f'{filepath} is not readable!'
+            self._logger.error(msg)
+            raise ValueError(msg)
         self._credentials_file = filepath
 
     def _file_exists(self, value: str) -> bool:
@@ -58,7 +66,7 @@ class OpenWeatherMap():
         for key, value in response.json().items():
             text += f'[{key}] {value} '
         msg = f'ERROR: {response.status_code} :: {text.strip()}'
-        print(msg)
+        self._logger.error(msg)
 
     def onecall(self) -> bool:
         exclude = 'minutely,hourly,daily,alerts'
@@ -82,5 +90,6 @@ class OpenWeatherMap():
         if r.status_code == 200:
             return True
         else:
-            print(f'ERROR: Status Code: {r.status_code}')
+            msg = f'ERROR: Status Code: {r.status_code}'
+            self._logger.error(msg)
             return False

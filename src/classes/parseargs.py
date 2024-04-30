@@ -5,7 +5,7 @@ from src.constants import constants
 
 
 class ParseArgs():
-    NAME = constants.ARGPARSE_PROGRAM_NAME
+    NAME = constants.PROGRAM_NAME
     DESC = constants.ARGPARSE_PROGRAM_DESCRIPTION
     VERSION = constants.ARGPARSE_VERSION
     AUTHOR = constants.ARGPARSE_AUTHOR
