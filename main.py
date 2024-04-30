@@ -2,6 +2,7 @@
 import sys
 import traceback
 
+from src.classes.mcrcon import McRcon
 from src.classes.parseargs import ParseArgs
 from src.classes.weather import OpenWeatherMap
 
@@ -14,8 +15,13 @@ def main():
     credentials_file = './src/configs/.creds'
     lat = 36.0178911
     long = -78.8083965
+
+    mcrcon_file = '/usr/local/bin/mcrcon'
+    hostname = 'localhost'
+    creds_file = './src/configs/.mcrcon'
     try:
         weather = OpenWeatherMap(credentials_file, lat, long)
+        mcrcon = McRcon(mcrcon_file, hostname, creds_file)
 
     except ValueError:
         errors = traceback.format_exc().splitlines()
@@ -24,12 +30,10 @@ def main():
         exit(1)
 
     if action == 'test':
-        # TODO:
-        # Call the weather class test method
-        # it makes a basic call and returns a basic check of data
         result = weather.test()
         if not result:
             exit(1)
+        print('Your credentials work!')
         exit(0)
 
     result = weather.onecall()

@@ -14,3 +14,9 @@ API_SCHEME = 'https://'
 API_HOST = 'api.openweathermap.org'
 API_VERSION = '3.0'
 API_BASE_URL = f'{API_SCHEME}{API_HOST}/data/{API_VERSION}'
+
+# mcrcon
+MCRCON_HOSTNAME_REGEX = r"^(localhost|[\w\-\_\.]+\.[\w\.]{2,})"
+MCRCON_MIN_PORT = 1
+MCRCON_MAX_PORT = 65535
+MCRCON_WEATHER_TIME = 3600
