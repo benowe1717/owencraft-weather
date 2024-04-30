@@ -1,0 +1,5 @@
+.pytest_cache/
+__pycache__/
+src/configs/.creds
+src/configs/.mcrcon
+logs/owencraft_weather.log
