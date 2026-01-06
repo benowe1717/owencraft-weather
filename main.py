@@ -9,6 +9,7 @@ Minecraft Weather commands, and then set the weather on the target server.
 import sys
 
 from mcrcon.mcrcon import Mcrcon
+from parseargs.parseargs import ParseArgs
 
 
 def main() -> None:
@@ -24,10 +25,11 @@ def main() -> None:
     Raises:
         None
     """
-    tasks()
+    parser: ParseArgs = begin()
+    tasks(parser)
 
 
-def begin() -> None:
+def begin() -> ParseArgs:
     """
     Setup tasks to make the progam work.
 
@@ -35,19 +37,25 @@ def begin() -> None:
         None
 
     Returns:
-        None
+        An instance of the ParseArgs class holding all of the arguments
+        passed to the running instance of this program
 
     Raises:
         None
     """
+    args: list[str] = sys.argv[1:]
+    parser: ParseArgs = ParseArgs(args)
+
+    return parser
 
 
-def tasks() -> None:
+def tasks(parser: ParseArgs) -> None:
     """
     All tasks necessary to get the weather forecast and set the weater.
 
     Args:
-        None
+        parser: An instance of the ParseArgs class holding all of the
+        arguments passed to the running instance of this program
 
     Returns:
         None
