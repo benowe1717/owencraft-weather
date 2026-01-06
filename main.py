@@ -6,6 +6,8 @@ Owencraft Weather - Get the weather forecast from the OpenWeatherMap API
 for the given zip code, translate the weather forecast into the available
 Minecraft Weather commands, and then set the weather on the target server.
 """
+import mcrcon
+from mcrcon.mcrcon import Mcrcon
 
 
 def main() -> None:
@@ -21,6 +23,7 @@ def main() -> None:
     Raises:
         None
     """
+    tasks()
 
 
 def begin() -> None:
@@ -51,6 +54,8 @@ def tasks() -> None:
     Raises:
         None
     """
+    mcrcon: Mcrcon = Mcrcon()
+    print(mcrcon.hostname)
 
 
 if __name__ == '__main__':
