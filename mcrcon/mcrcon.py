@@ -246,3 +246,29 @@ class Mcrcon():
             print(err)
 
         return logged_in_players
+
+    def set_weather(self, weather: str) -> None:
+        """
+        Set the weather on the target server
+
+        This method uses the /weather command to set the weather on the
+        target server using either "clear", "rain", or "thunder".
+
+        Args:
+            weather: The name of the weather to set on the server
+
+        Returns:
+            None
+
+        Raises:
+            ValueError when the given weather state is invalid
+            ValueError when the MCRCON command fails
+        """
+        weather_states: list[str] = ['clear', 'rain', 'thunder']
+        if weather.lower() not in weather_states:
+            raise ValueError(f'{weather} is not a valid weather state!')
+
+        try:
+            self._run_command(f'weather {weather}')
+        except ValueError as err:
+            raise ValueError(err) from err
