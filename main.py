@@ -132,17 +132,14 @@ def map_weather_id_to_minecraft_weather(weather_id: int) -> str:
     if weather_id == -1:
         return 'clear'
 
-    storm: list[int] = [200, 201, 202, 210, 211, 212, 221, 230, 231, 232]
-    rain: list[int] = [
-        300, 301, 302, 310, 311, 312, 313, 314, 321, 500, 501, 502, 503,
-        504, 511, 520, 521, 522, 531, 600, 601, 602, 612, 613, 615, 616,
-        620, 621, 622]
+    if weather_id >= 700:
+        return 'clear'
 
-    if weather_id in storm:
-        return 'thunderstorm'
-
-    if weather_id in rain:
+    if weather_id >= 300:
         return 'rain'
+
+    if weather_id >= 200:
+        return 'storm'
 
     return 'clear'
 
