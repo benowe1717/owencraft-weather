@@ -5,6 +5,7 @@ OpenWeatherMap API Wrapper
 These functions are used to interact with the OpenWeatherMap One Call 3.0
 REST API. Docs can be found here: https://openweathermap.org/api/one-call-3
 """
+import logging
 import os
 from typing import Any
 
@@ -13,6 +14,7 @@ import requests
 SCHEME: str = 'https'
 DOMAIN: str = 'api.openweathermap.org'
 BASE_URL: str = f'{SCHEME}://{DOMAIN}'
+LOGGER = logging.getLogger('owencraftWeater')
 
 
 def get_api_key() -> str:
@@ -42,7 +44,9 @@ def get_lat_and_lon(zipcode: int, country_code: str) -> tuple[str, str]:
     try:
         response: requests.Response = requests.get(url=url, timeout=10)
         if response.status_code != 200:
-            print(f'[ERR] {response.status_code} :: {response.text}')
+            LOGGER.error(
+                '[ERR] %s :: %s' %
+                (response.status_code, response.text))
             return ('', '')
 
         data: dict[str, Any] = response.json()
@@ -77,7 +81,9 @@ def get_current_weather(lat: str, lon: str) -> int:
     try:
         response: requests.Response = requests.get(url=url, timeout=10)
         if response.status_code != 200:
-            print(f'[ERR] {response.status_code} :: {response.text}')
+            LOGGER.error(
+                '[ERR] %s :: %s' %
+                (response.status_code, response.text))
             return -1
 
         data: dict[str, Any] = response.json()
