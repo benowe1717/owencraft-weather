@@ -6,7 +6,6 @@ ParseArgs() is a class that wraps around the argparse library to accept
 and handle command line parameters.
 """
 import argparse
-import os
 
 
 class ParseArgs():
@@ -207,7 +206,7 @@ class ParseArgs():
         Raises:
             None
         """
-        print('owencraft-weather v0.0.1')
+        print('owencraft-weather v0.1.0')
         print(
             'This is free software:',
             'you are free to change and redistribute it.')
