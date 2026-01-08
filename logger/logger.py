@@ -13,6 +13,15 @@ from datetime import datetime
 def get_hostname() -> str:
     """
     Return the device's hostname.
+
+    Args:
+        None
+
+    Returns:
+        The device's hostname in str format.
+
+    Raises:
+        None
     """
     return socket.gethostname()
 
@@ -20,6 +29,15 @@ def get_hostname() -> str:
 def get_pid() -> int:
     """
     Return the program's process ID.
+
+    Args:
+        None
+
+    Returns:
+        The current program's process ID in integer format.
+
+    Raises:
+        None
     """
     return os.getpid()
 
@@ -27,6 +45,16 @@ def get_pid() -> int:
 def configure_logger(name: str) -> None:
     """
     Configure the application's logger.
+
+    Args:
+        name: The name of the logger to configure in str format. This name
+        will be used throughout the entire application.
+
+    Returns:
+        None
+
+    Raises:
+        None
     """
     logger: logging.Logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)

@@ -19,7 +19,17 @@ LOGGER = logging.getLogger('owencraftWeater')
 
 def get_api_key() -> str:
     """
-    Get the API Key from the environment
+    Get the API Key from the environment. This relies on the
+    OPENWEATHERMAP_API_KEY environment variable to be set.
+
+    Args:
+        None
+
+    Returns:
+        The OpenWeatherMap API Key in str format.
+
+    Raises:
+        ValueError if the environment variable is not set or empty.
     """
     api_key: str | None = os.getenv('OPENWEATHERMAP_API_KEY')
     if not api_key:
@@ -29,9 +39,27 @@ def get_api_key() -> str:
 
 def get_lat_and_lon(zipcode: int, country_code: str) -> tuple[str, str]:
     """
-    Get the Latitude and Longitude from the given zipcode and country code.
+    Retrieve the latitude and longitude from the given zipcode and
+    country code.
 
     https://openweathermap.org/api/geocoding-api#direct_zip
+
+    Args:
+        zipcode: An integer representing the location you want to check
+        the weather in.
+        country_code: A two letter string representing the country the
+        zipcode belongs to.
+
+    Returns:
+        A tuple representing the Latitude and Longitude matching the
+        zipcode and country code. The values are converted from float to str.
+
+    Raises:
+        ValueError when the environment variable for the API Key is not set.
+        ValueError when the request encounters an HTTPError
+        ValueError when the request encounters a ReadTimeout
+        ValueError when the request encounters a ConnectionError
+        KeyError if the `lat` and `lon` cannot be found in the returned data.
     """
     try:
         api_key: str = get_api_key()
@@ -64,9 +92,23 @@ def get_lat_and_lon(zipcode: int, country_code: str) -> tuple[str, str]:
 
 def get_current_weather(lat: str, lon: str) -> int:
     """
-    Get the current weather from the given Latitude and Longitude.
+    Get the current weather for the given latitude and longitude.
 
     https://openweathermap.org/api/one-call-3#current
+
+    Args:
+        lat: The latitude in str format.
+        lon: The longitude in str format.
+
+    Returns:
+        An ID representing the current weather.
+
+    Raises:
+        ValueError when the environment variable for the API Key is not set.
+        ValueError when the request encounters an HTTPError
+        ValueError when the request encounters a ReadTimeout
+        ValueError when the request encounters a ConnectionError
+        KeyError if the `id` cannot be found in the returned data.
     """
     try:
         api_key: str = get_api_key()

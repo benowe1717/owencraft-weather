@@ -99,6 +99,19 @@ def get_lat_and_lon_from_zipcode(
     """
     Retrieve the latitude and longitude from the given zipcode and
     country code.
+
+    Args:
+        zipcode: An integer representing the location you want to check
+        the weather in.
+        country_code: A two letter string representing the country the
+        zipcode belongs to.
+
+    Returns:
+        A tuple representing the Latitude and Longitude matching the
+        zipcode and country code. The values are converted from float to str.
+
+    Raises:
+        None
     """
     owlogger = logging.getLogger('owencraftWeather')
 
@@ -113,6 +126,16 @@ def get_lat_and_lon_from_zipcode(
 def get_current_weather(lat: str, lon: str) -> int:
     """
     Get the current weather for the given latitude and longitude.
+
+    Args:
+        lat: The latitude in str format.
+        lon: The longitude in str format.
+
+    Returns:
+        An ID representing the current weather.
+
+    Raises:
+        None
     """
     owlogger = logging.getLogger('owencraftWeather')
 
@@ -128,6 +151,15 @@ def map_weather_id_to_minecraft_weather(weather_id: int) -> str:
     Map the Current Weather ID from OpenWeatherMap to Minecraft Weater.
 
     https://openweathermap.org/weather-conditions#Weather-Condition-Codes-2
+
+    Args:
+        weather_id: An integer representing the current weather.
+
+    Returns:
+        A string of either clear/rain/thunder based on the given ID.
+
+    Raises:
+        None
     """
     if weather_id == -1:
         return 'clear'
@@ -139,7 +171,7 @@ def map_weather_id_to_minecraft_weather(weather_id: int) -> str:
         return 'rain'
 
     if weather_id >= 200:
-        return 'storm'
+        return 'thunder'
 
     return 'clear'
 
