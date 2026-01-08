@@ -206,7 +206,7 @@ class ParseArgs():
         Raises:
             None
         """
-        print('owencraft-weather v0.1.0')
+        print('owencraft-weather v1.0.0')
         print(
             'This is free software:',
             'you are free to change and redistribute it.')

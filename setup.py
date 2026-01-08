@@ -10,7 +10,7 @@ with open('LICENSE', 'r', encoding='utf-8') as file:
 
 setup(
     name='owencraft-weather',
-    version='0.1.0',
+    version='1.0.0',
     description='Control the weather on the Owencraft Minecraft Server',
     long_description=readme,
     author='Benjamin Owen',
