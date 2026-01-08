@@ -1,5 +1,7 @@
 # owencraft-weather
 
+Owencraft Weather - Get the weather forecast from the OpenWeatherMap API for a given zip code, translate the weather forecast into the available Minecraft Weather commands (/weather [clear|rain|thunder]), and then set the weather on the target server.
+
 ## Prerequisites
 
 Before you begin, ensure you have met the following requirements:
