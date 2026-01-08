@@ -1,93 +1,179 @@
 #!/usr/bin/env python3
+"""
+Owencraft Weather - Control the weather on the Owencraft Minecraft Server
+
+Owencraft Weather - Get the weather forecast from the OpenWeatherMap API
+for the given zip code, translate the weather forecast into the available
+Minecraft Weather commands, and then set the weather on the target server.
+"""
 import logging
-import logging.config
-import os
 import sys
-import traceback
-from datetime import datetime
 
-from src.classes.mcrcon import McRcon
-from src.classes.parseargs import ParseArgs
-from src.classes.weather import OpenWeatherMap
-from src.constants import constants
+from logger import logger
+from mcrcon.mcrcon import Mcrcon
+from openweathermap import openweathermap
+from parseargs.parseargs import ParseArgs
 
 
-def get_weather(weather: dict) -> str:
-    condition = weather['current']['weather'][0]['main']
-    if condition in constants.RAIN_CONDITIONS:
-        return 'rain'
-    return 'clear'
+def main() -> None:
+    """
+    This program's entry point.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    Raises:
+        None
+    """
+    parser: ParseArgs = begin()
+    tasks(parser)
 
 
-def main():
-    logger_conf = './src/configs/logging.config'
-    logger_conf_filepath = os.path.abspath(logger_conf)
-    if not os.path.exists(logger_conf):
-        print(f'ERROR: Unable to locate {logger_conf_filepath}')
-        exit(1)
-    logging.config.fileConfig(logger_conf_filepath)
-    old_factory = logging.getLogRecordFactory()
+def begin() -> ParseArgs:
+    """
+    Setup tasks to make the progam work.
 
-    def record_factory(*args, **kwargs):
-        record = old_factory(*args, **kwargs)
-        record.event_date = datetime.now().strftime(constants.TIME_FORMAT)
-        record.hostname = os.uname().nodename
-        record.program = constants.PROGRAM_NAME
-        record.pid = os.getpid()
-        return record
+    Args:
+        None
 
-    logging.setLogRecordFactory(record_factory)
-    logger = logging.getLogger(constants.PROGRAM_NAME)
+    Returns:
+        An instance of the ParseArgs class holding all of the arguments
+        passed to the running instance of this program
 
-    args = sys.argv
-    myparser = ParseArgs(args)
-    action = myparser.action
+    Raises:
+        None
+    """
+    args: list[str] = sys.argv[1:]
+    parser: ParseArgs = ParseArgs(args)
+    logger.configure_logger('owencraftWeather')
 
-    logger.info('Starting script...')
+    return parser
 
-    credentials_file = './src/configs/.creds'
-    lat = 36.0178911
-    long = -78.8083965
 
-    mcrcon_file = '/usr/local/bin/mcrcon'
-    hostname = 'localhost'
-    creds_file = './src/configs/.mcrcon'
+def tasks(parser: ParseArgs) -> None:
+    """
+    All tasks necessary to get the weather forecast and set the weater.
+
+    Args:
+        parser: An instance of the ParseArgs class holding all of the
+        arguments passed to the running instance of this program
+
+    Returns:
+        None
+
+    Raises:
+        None
+    """
+    owlogger = logging.getLogger('owencraftWeather')
+    owlogger.info('Starting script...')
+
+    owlogger.info('Getting latitude and longitude from zipcode...')
+    lat, lon = get_lat_and_lon_from_zipcode(
+        parser.zipcode, parser.country_code)
+
+    if not lat or not lon:
+        owlogger.error('[ERR] Unable to retrieve latitude and longitude!')
+        sys.exit(1)
+
+    owlogger.info('Getting current weather...')
+    weather_id = get_current_weather(lat, lon)
+    current_weather = map_weather_id_to_minecraft_weather(weather_id)
+
+    owlogger.info('Setting current weather...')
+    mcrcon: Mcrcon = Mcrcon()
     try:
-        logger.info('Starting up the OpenWeatherMap class...')
-        weather = OpenWeatherMap(credentials_file, lat, long)
+        mcrcon.set_weather(current_weather)
+        owlogger.info('Weather set to `%s`!' % current_weather)
+    except ValueError as err:
+        owlogger.error(err)
+        sys.exit(1)
 
-        logger.info('Starting up the McRcon class...')
-        mcrcon = McRcon(mcrcon_file, hostname, creds_file)
+    owlogger.info('Script finished!')
 
-    except ValueError:
-        errors = traceback.format_exc().splitlines()
-        error = errors[-1]
-        logger.error(f'ERROR: {error}')
-        exit(1)
 
-    if action == 'test':
-        logger.info('Testing your credentials...')
-        result = weather.test()
-        if not result:
-            exit(1)
-        logger.info('Your credentials work!')
-        logger.info('Script finished successfully!')
-        exit(0)
+def get_lat_and_lon_from_zipcode(
+        zipcode: int, country_code: str) -> tuple[str, str]:
+    """
+    Retrieve the latitude and longitude from the given zipcode and
+    country code.
 
-    logger.info('Getting the current weather...')
-    result = weather.onecall()
-    if not result:
-        exit(1)
-    condition = get_weather(weather.weather)
-    logger.info(f'The weather right now is {condition}!')
+    Args:
+        zipcode: An integer representing the location you want to check
+        the weather in.
+        country_code: A two letter string representing the country the
+        zipcode belongs to.
 
-    logger.info('Setting the weather on the Owencraft server...')
-    result = mcrcon.set_weather(condition)
-    if not result:
-        exit(1)
-    logger.info('Weather has been set!')
+    Returns:
+        A tuple representing the Latitude and Longitude matching the
+        zipcode and country code. The values are converted from float to str.
 
-    logger.info('Script finished successfully!')
+    Raises:
+        None
+    """
+    owlogger = logging.getLogger('owencraftWeather')
+
+    try:
+        lat, lon = openweathermap.get_lat_and_lon(zipcode, country_code)
+        return (lat, lon)
+    except (ValueError, KeyError) as err:
+        owlogger.error('[ERR] %s' % err)
+        sys.exit(1)
+
+
+def get_current_weather(lat: str, lon: str) -> int:
+    """
+    Get the current weather for the given latitude and longitude.
+
+    Args:
+        lat: The latitude in str format.
+        lon: The longitude in str format.
+
+    Returns:
+        An ID representing the current weather.
+
+    Raises:
+        None
+    """
+    owlogger = logging.getLogger('owencraftWeather')
+
+    try:
+        return openweathermap.get_current_weather(lat, lon)
+    except (ValueError, KeyError) as err:
+        owlogger.error('[ERR] %s' % err)
+        sys.exit(1)
+
+
+def map_weather_id_to_minecraft_weather(weather_id: int) -> str:
+    """
+    Map the Current Weather ID from OpenWeatherMap to Minecraft Weater.
+
+    https://openweathermap.org/weather-conditions#Weather-Condition-Codes-2
+
+    Args:
+        weather_id: An integer representing the current weather.
+
+    Returns:
+        A string of either clear/rain/thunder based on the given ID.
+
+    Raises:
+        None
+    """
+    if weather_id == -1:
+        return 'clear'
+
+    if weather_id >= 700:
+        return 'clear'
+
+    if weather_id >= 300:
+        return 'rain'
+
+    if weather_id >= 200:
+        return 'thunder'
+
+    return 'clear'
 
 
 if __name__ == '__main__':
